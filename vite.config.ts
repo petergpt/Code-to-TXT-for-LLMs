@@ -7,11 +7,13 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 8080,
-    cors: true,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
-      'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
+    hmr: {
+      host: '0.0.0.0',
+    },
+    cors: {
+      origin: ['*.replit.dev', 'https://*.replit.dev'],
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+      credentials: true
     }
   }
 })
