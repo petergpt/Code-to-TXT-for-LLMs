@@ -1,26 +1,18 @@
 // src/rules.ts
 
-// Directories to ignore
-const IGNORED_DIRS = [
-  "node_modules", ".git", "__pycache__", ".venv", "venv", "dist", "build", ".next"
-];
-
-// Allowed file extensions
-const ALLOWED_EXTENSIONS = [
+// By default, we auto-select these file extensions.
+const AUTO_SELECT_EXTS = [
   ".js", ".jsx", ".ts", ".tsx", ".py", ".json", ".html", ".css"
 ];
 
 /**
- * Returns true if the file should be included.
+ * Returns true if path is a string and ends with one of the “code” extensions
+ * we want to auto-select by default.
  */
-export function shouldIncludeFile(path: string): boolean {
-  // Skip if path contains any ignored directory
-  for (const dir of IGNORED_DIRS) {
-    if (path.includes(`${dir}/`)) {
-      return false;
-    }
+export function shouldIncludeFile(path: unknown): boolean {
+  if (typeof path !== "string") return false;
+  for (const ext of AUTO_SELECT_EXTS) {
+    if (path.endsWith(ext)) return true;
   }
-
-  // Include only if extension is in ALLOWED_EXTENSIONS
-  return ALLOWED_EXTENSIONS.some(ext => path.endsWith(ext));
+  return false;
 }

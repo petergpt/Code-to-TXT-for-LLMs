@@ -130,7 +130,7 @@ function App() {
   async function handleGenerate() {
     try {
       const now = new Date().toISOString().replace(/[^\dT]/g, "").split(".")[0];
-      const outFileName = `code-to-text-${now}.txt`;
+      const outFileName = `code-extractor-${now}.txt`;
 
       let combined = "";
       for (const f of files) {
