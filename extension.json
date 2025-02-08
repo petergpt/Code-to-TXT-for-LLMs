@@ -1,25 +1,19 @@
-
 {
-  "name": "Code Extractor",
-  "slug": "code-extractor",
+  "name": "Code to TXT",
+  "slug": "code-to-txt",
   "version": "0.0.1",
-  "description": "Select relevant files and generate a single text file containing code snippets for LLM usage.",
-  "icon": "public/icon.png",
+  "description": "Create a TXT file will all your code for an LLM",
+  "icon": "minimalistic-colour-icon-code-being-writ_KVoTtCDJQ060WeB12MCSfw_LNcCs1aeQgy3DfD0J9h8NA.jpeg",
   "scopes": [
     {
       "name": "read",
       "reason": "Read your code files so they can be included in the final text file."
     },
     {
-      "name": "write-exec", 
+      "name": "write-exec",
       "reason": "Create timestamped text files in your workspace."
     }
   ],
-  "tools": [
-    {
-      "name": "Code Extractor",
-      "handler": "/tool",
-      "icon": "public/icon.png"
-    }
-  ]
+  "tools": [],
+  longDescription: "Make it easy to code with LLMs, pull all your files together into a single TXT file and give it to your LLM"
 }
