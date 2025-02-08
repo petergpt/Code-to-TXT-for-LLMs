@@ -10,10 +10,9 @@ export default defineConfig({
     hmr: {
       host: '0.0.0.0',
     },
-    cors: {
-      origin: ['*.replit.dev', 'https://*.replit.dev'],
-      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-      credentials: true
+    cors: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*'
     }
   }
 })
