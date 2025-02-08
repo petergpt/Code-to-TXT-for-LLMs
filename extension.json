@@ -15,12 +15,11 @@
       "reason": "Create timestamped text files in your workspace."
     }
   ],
-  "tools": {
-    "code-extractor": {
+  "tools": [
+    {
       "name": "Code Extractor",
-      "path": "/tool",
-      "displayOn": "sidebar",
-      "description": "Scan and extract selected files into a single text file."
+      "handler": "/tool",
+      "icon": "public/icon.png"
     }
-  }
+  ]
 }
