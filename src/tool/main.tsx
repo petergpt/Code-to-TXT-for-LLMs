@@ -16,13 +16,30 @@ interface FileInfo {
 /**
  * The main UI for “Code to TXT.”
  */
-function App() {
-  const { replit, status } = useReplit();
+class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
+  constructor(props: {children: React.ReactNode}) {
+    super(props);
+    this.state = { hasError: false };
+  }
 
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div>Something went wrong. Please refresh the page.</div>;
+    }
+    return this.props.children;
+  }
+}
+
+function App() {
   const [files, setFiles] = React.useState<FileInfo[]>([]);
   const [selectedFiles, setSelectedFiles] = React.useState<Record<string, boolean>>({});
   const [logs, setLogs] = React.useState<string[]>([]);
   const [scanning, setScanning] = React.useState(false);
+  const { replit, status } = useReplit();
 
   /** Appends a line of text to the logs. */
   function appendLog(msg: string) {
@@ -233,9 +250,11 @@ function App() {
 // Standard React entry point
 const root = createRoot(document.getElementById("root") as HTMLElement);
 root.render(
-  <HandshakeProvider>
-    <App />
-  </HandshakeProvider>
+  <ErrorBoundary>
+    <HandshakeProvider>
+      <App />
+    </HandshakeProvider>
+  </ErrorBoundary>
 );
 
 // Inline styling
