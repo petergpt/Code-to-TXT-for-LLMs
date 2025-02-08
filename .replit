@@ -37,11 +37,15 @@ staticDirectory = "./public"
 extensionID = "d61ff118-ae23-4234-93a5-1f43008b828a"
 
 [[ports]]
+localPort = 5173
+externalPort = 5173
+
+[[ports]]
 localPort = 8080
 externalPort = 80
 
 [workflows]
-runButton = "Run"
+runButton = "dev"
 
 [[workflows.workflow]]
 name = "Run"
@@ -50,3 +54,11 @@ author = 17743746
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx replkit dev"
+
+[[workflows.workflow]]
+name = "dev"
+author = 17743746
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "VITE_PORT=8080 vite --host 0.0.0.0"
