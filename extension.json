@@ -1,3 +1,4 @@
+
 {
   "name": "Code to TXT",
   "slug": "code-to-txt",
@@ -14,6 +15,11 @@
       "reason": "Create timestamped text files in your workspace."
     }
   ],
-  "tools": [],
-  longDescription: "Make it easy to code with LLMs, pull all your files together into a single TXT file and give it to your LLM"
+  "tools": [
+    {
+      "handler": "/",
+      "name": "Code to TXT"
+    }
+  ],
+  "longDescription": "Make it easy to code with LLMs, pull all your files together into a single TXT file and give it to your LLM"
 }
