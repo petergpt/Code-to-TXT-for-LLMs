@@ -1,3 +1,100 @@
+File: .upm/store.json
+----------------------------------------
+{"version":2,"languages":{"nodejs-npm":{"specfileHash":"45e7168bbe75f99ac166de30295177a7","lockfileHash":"95b3653fa460ca7b3d2885415c8a542e"}}}
+
+
+
+File: extension.json
+----------------------------------------
+{
+  "name": "Code to TXT",
+  "slug": "code-to-txt",
+  "version": "0.0.1",
+  "description": "Create a TXT file will all your code for an LLM",
+  "icon": "minimalistic-colour-icon-code-being-writ_KVoTtCDJQ060WeB12MCSfw_LNcCs1aeQgy3DfD0J9h8NA.jpeg",
+  "scopes": [
+    {
+      "name": "read",
+      "reason": "Read your code files so they can be included in the final text file."
+    },
+    {
+      "name": "write-exec",
+      "reason": "Create timestamped text files in your workspace."
+    }
+  ],
+  "tools": [],
+  longDescription: "Make it easy to code with LLMs, pull all your files together into a single TXT file and give it to your LLM"
+}
+
+
+
+File: package.json
+----------------------------------------
+{
+  "name": "code-extractor-extension",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@replit/extensions": "latest",
+    "@replit/extensions-react": "latest",
+    "@replit/replkit": "^0.0.7",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "vite": "^4.0.4"
+  }
+}
+
+
+
+File: src/rules.ts
+----------------------------------------
+// src/rules.ts
+
+// By default, we auto-select these file extensions.
+const AUTO_SELECT_EXTS = [
+  ".js", ".jsx", ".ts", ".tsx", ".py", ".json", ".html", ".css"
+];
+
+/**
+ * Returns true if path is a string and ends with one of the “code” extensions
+ * we want to auto-select by default.
+ */
+export function shouldIncludeFile(path: unknown): boolean {
+  if (typeof path !== "string") return false;
+  for (const ext of AUTO_SELECT_EXTS) {
+    if (path.endsWith(ext)) return true;
+  }
+  return false;
+}
+
+
+
+File: src/tool/index.html
+----------------------------------------
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Code Extractor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./main.tsx"></script>
+  </body>
+</html>
+
+
+
+File: src/tool/main.tsx
+----------------------------------------
 // src/tool/main.tsx
 import * as React from "react";
 import { createRoot } from "react-dom/client";
@@ -169,7 +266,8 @@ function App() {
     <div style={styles.container}>
       <h1 style={styles.title}>Code to TXT</h1>
       <p>
-        Scan your codebase, identify key files and generate a TXT file, ready to share with an external LLM”
+        This tool scans your codebase (skipping large system folders), loads line counts,
+        and auto‐selects common code files. Then click “Generate File.”
       </p>
 
       <button style={styles.scanBtn} onClick={handleScan} disabled={scanning}>
@@ -179,7 +277,8 @@ function App() {
       {files.length > 0 ? (
         <>
           <p style={styles.note}>
-            Recommended files pre-selected. Uncheck anything you don’t want included.
+            <strong>Lines</strong> on the left for quick visibility; 
+            selected files appear on top. Uncheck anything you don’t want included.
           </p>
           <div style={styles.tableContainer}>
             <table style={styles.table}>
@@ -209,7 +308,7 @@ function App() {
           </div>
 
           <button style={styles.generateBtn} onClick={handleGenerate}>
-            Generate a TXT File
+            Generate File
           </button>
         </>
       ) : (
@@ -360,3 +459,32 @@ const styles: Record<string, React.CSSProperties> = {
     lineHeight: "1.4"
   }
 };
+
+
+
+File: tsconfig.json
+----------------------------------------
+{
+    "compilerOptions": {
+      "strict": true,
+      "esModuleInterop": true,
+      "target": "ESNext",
+      "useDefineForClassFields": true,
+      "lib": ["DOM", "DOM.Iterable", "ESNext"],
+      "allowJs": true,
+      "skipLibCheck": true,
+      "allowSyntheticDefaultImports": true,
+      "forceConsistentCasingInFileNames": true,
+      "module": "ESNext",
+      "moduleResolution": "Node",
+      "resolveJsonModule": true,
+      "isolatedModules": true,
+      "noEmit": true,
+      "jsx": "react-jsx"
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "dist"]
+  }
+  
+
+
