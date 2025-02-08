@@ -19,7 +19,7 @@
     {
       name: "Code to TXT",
       icon: "public/icon.svg",
-      handler: "/Code-to-TXT-for-LLMs"
+      handler: "/src/tool"
     }
 
   ],
