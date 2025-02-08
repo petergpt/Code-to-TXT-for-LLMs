@@ -243,81 +243,122 @@ root.render(
 // Inline styling
 const styles: Record<string, React.CSSProperties> = {
   container: {
-    fontFamily: "sans-serif",
-    padding: "1rem",
-    maxWidth: "850px",
-    margin: "0 auto"
+    fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+    padding: "2rem",
+    maxWidth: "900px",
+    margin: "0 auto",
+    backgroundColor: "#ffffff",
+    color: "#1a1a1a"
   },
   title: {
-    fontSize: "1.4rem",
-    marginBottom: "0.5rem"
+    fontSize: "2rem",
+    marginBottom: "1rem",
+    fontWeight: "700",
+    background: "linear-gradient(45deg, #2563eb, #3b82f6)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent"
   },
   loading: {
-    padding: "1rem"
+    padding: "2rem",
+    fontSize: "1.1rem",
+    color: "#666"
   },
   scanBtn: {
-    padding: "0.5rem 1rem",
-    marginRight: "0.75rem",
-    cursor: "pointer"
+    padding: "0.75rem 1.5rem",
+    marginRight: "1rem",
+    cursor: "pointer",
+    backgroundColor: "#2563eb",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "1rem",
+    fontWeight: "500",
+    transition: "transform 0.1s, background-color 0.2s",
+    ":hover": {
+      backgroundColor: "#1d4ed8",
+      transform: "scale(1.02)"
+    }
   },
   note: {
-    margin: "0.5rem 0",
-    fontSize: "0.9rem",
-    fontStyle: "italic"
+    margin: "1rem 0",
+    fontSize: "0.95rem",
+    color: "#666",
+    lineHeight: "1.5"
   },
   tableContainer: {
-    marginTop: "1rem",
-    border: "1px solid #ddd",
-    borderRadius: "4px",
+    marginTop: "1.5rem",
+    border: "1px solid #e5e7eb",
+    borderRadius: "12px",
     maxHeight: "50vh",
-    overflowY: "auto"
+    overflowY: "auto",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
   },
   table: {
     width: "100%",
-    borderCollapse: "collapse"
+    borderCollapse: "separate",
+    borderSpacing: 0
   },
   headerCell: {
-    backgroundColor: "#f2f2f2",
-    fontWeight: "bold",
-    borderBottom: "1px solid #ccc",
-    padding: "6px",
+    backgroundColor: "#f8fafc",
+    fontWeight: "600",
+    color: "#475569",
+    padding: "12px",
     position: "sticky",
-    top: 0
+    top: 0,
+    borderBottom: "1px solid #e5e7eb",
+    textAlign: "left"
   },
   lineCell: {
-    borderBottom: "1px solid #eee",
-    padding: "5px 8px",
+    borderBottom: "1px solid #f1f5f9",
+    padding: "10px 12px",
     textAlign: "right",
-    width: "4rem"
+    width: "4rem",
+    color: "#64748b"
   },
   checkCell: {
-    borderBottom: "1px solid #eee",
-    padding: "5px 8px",
+    borderBottom: "1px solid #f1f5f9",
+    padding: "10px 12px",
     textAlign: "center",
     width: "3rem"
   },
   filePathCell: {
-    borderBottom: "1px solid #eee",
-    padding: "5px 8px",
-    fontFamily: "monospace"
+    borderBottom: "1px solid #f1f5f9",
+    padding: "10px 12px",
+    fontFamily: "'Fira Code', monospace",
+    fontSize: "0.9rem",
+    color: "#334155"
   },
   generateBtn: {
-    marginTop: "0.75rem",
-    padding: "0.5rem 1rem",
-    cursor: "pointer"
+    marginTop: "1.5rem",
+    padding: "0.75rem 2rem",
+    cursor: "pointer",
+    backgroundColor: "#16a34a",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "1rem",
+    fontWeight: "500",
+    transition: "transform 0.1s, background-color 0.2s",
+    ":hover": {
+      backgroundColor: "#15803d",
+      transform: "scale(1.02)"
+    }
   },
   logsBox: {
-    marginTop: "0.5rem",
-    border: "1px solid #ddd",
-    borderRadius: "4px",
-    backgroundColor: "#fafafa",
-    padding: "0.5rem",
+    marginTop: "1rem",
+    border: "1px solid #e5e7eb",
+    borderRadius: "12px",
+    backgroundColor: "#f8fafc",
+    padding: "1rem",
     maxHeight: "160px",
-    overflowY: "auto"
+    overflowY: "auto",
+    boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.05)"
   },
   logLine: {
-    fontFamily: "monospace",
+    fontFamily: "'Fira Code', monospace",
     fontSize: "0.9rem",
-    marginBottom: "0.25rem"
+    marginBottom: "0.4rem",
+    color: "#475569",
+    lineHeight: "1.4"
   }
 };
