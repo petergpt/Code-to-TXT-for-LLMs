@@ -1,3 +1,4 @@
+
 {
   "name": "Code Extractor",
   "slug": "code-extractor",
@@ -10,16 +11,16 @@
       "reason": "Read your code files so they can be included in the final text file."
     },
     {
-      "name": "write-exec",
+      "name": "write-exec", 
       "reason": "Create timestamped text files in your workspace."
     }
   ],
-  "tools": [
-    {
+  "tools": {
+    "code-extractor": {
       "name": "Code Extractor",
       "path": "/tool",
       "displayOn": "sidebar",
       "description": "Scan and extract selected files into a single text file."
     }
-  ]
+  }
 }
