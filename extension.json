@@ -1,7 +1,8 @@
+
 {
   "name": "Code to TXT",
   "slug": "code-to-txt",
-  "version": "0.0.1",
+  "version": "0.0.1", 
   "description": "Create a TXT file will all your code for an LLM",
   "icon": "/icon.svg",
   "scopes": [
