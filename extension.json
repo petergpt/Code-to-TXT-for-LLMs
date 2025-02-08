@@ -18,7 +18,8 @@
   "tools": [
     {
       "handler": "/",
-      "name": "Code to TXT"
+      "name": "Code to TXT",
+      icon: "/public/icon.svg"
     }
   ],
   "longDescription": "Make it easy to code with LLMs, pull all your files together into a single TXT file and give it to your LLM"
