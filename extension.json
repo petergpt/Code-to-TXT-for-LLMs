@@ -14,14 +14,6 @@
       "reason": "Create timestamped text files in your workspace."
     }
   ],
-  "tools": [
-
-    {
-      name: "Code to TXT",
-      icon: "public/icon.svg",
-      handler: "/Code-to-TXT-for-LLMs"
-    }
-
-  ],
+  "tools": [],
   longDescription: "Make it easy to code with LLMs, pull all your files together into a single TXT file and give it to your LLM"
 }
