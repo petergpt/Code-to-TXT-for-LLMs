@@ -7,8 +7,12 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 8080,
-    allowedHosts: [
-      '4b967e9b-42be-494b-bce4-301e24529d48-00-2anfgnzym2tuf.janeway.replit.dev'
-    ]
+    hmr: {
+      host: '0.0.0.0',
+    },
+    cors: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    }
   }
 })
