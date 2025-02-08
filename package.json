@@ -1,0 +1,26 @@
+{
+  "name": "replit-extension-template",
+  "version": "0.0.1",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx prettier --write src/*",
+    "clean": "rm -rf dist/",
+    "type:check": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@replit/extensions": "^1.10.0",
+    "@replit/extensions-react": "^0.6.0",
+    "@replit/replkit": "^0.0.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.31",
+    "@types/react-dom": "^18.2.14"
+  }
+}

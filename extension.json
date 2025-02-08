@@ -1,0 +1,12 @@
+{
+  "name": "My extension",
+  "description": "A new Replit Extension",
+  "icon": "/replit.svg",
+  "tools": [
+    {
+      "name": "Example tool",
+      "handler": "/tool",
+      "icon": "/replit.svg"
+    }
+  ]
+}
