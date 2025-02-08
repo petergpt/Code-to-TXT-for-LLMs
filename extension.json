@@ -1,12 +1,25 @@
 {
-  "name": "My extension",
-  "description": "A new Replit Extension",
-  "icon": "/replit.svg",
+  "name": "Code Extractor",
+  "slug": "code-extractor",
+  "version": "0.0.1",
+  "description": "Select relevant files and generate a single text file containing code snippets for LLM usage.",
+  "icon": "public/icon.png",
+  "scopes": [
+    {
+      "name": "read",
+      "reason": "Read your code files so they can be included in the final text file."
+    },
+    {
+      "name": "write-exec",
+      "reason": "Create timestamped text files in your workspace."
+    }
+  ],
   "tools": [
     {
-      "name": "Example tool",
-      "handler": "/tool",
-      "icon": "/replit.svg"
+      "name": "Code Extractor",
+      "path": "/tool",
+      "displayOn": "sidebar",
+      "description": "Scan and extract selected files into a single text file."
     }
   ]
 }

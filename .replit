@@ -34,7 +34,19 @@ isExtension = true
 buildCommand = "replkit build"
 outputDirectory = "./dist"
 staticDirectory = "./public"
+extensionID = "d61ff118-ae23-4234-93a5-1f43008b828a"
 
 [[ports]]
 localPort = 8080
 externalPort = 80
+
+[workflows]
+runButton = "Run"
+
+[[workflows.workflow]]
+name = "Run"
+author = 17743746
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx replkit dev"
