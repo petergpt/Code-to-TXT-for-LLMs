@@ -61,4 +61,4 @@ author = 17743746
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "VITE_PORT=8080 vite --host 0.0.0.0"
+args = "VITE_PORT=8080 vite --host 0.0.0.0 --port 8080"
