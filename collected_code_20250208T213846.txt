@@ -1,0 +1,483 @@
+
+
+File: src/tool/main.tsx
+========================================
+// src/tool/main.tsx
+import * as React from "react";
+import { createRoot } from "react-dom/client";
+import { HandshakeProvider, useReplit } from "@replit/extensions-react";
+import { shouldIncludeFile } from "../rules";
+
+// We skip scanning these directories to avoid huge overhead
+const SKIP_DIRS = ["node_modules", ".git", ".cache", ".venv", "venv", "dist", "build"];
+
+/** Each file has a path and a lineCount once we read it. */
+interface FileInfo {
+  path: string;
+  lineCount: number;
+}
+
+/**
+ * The main UI for “Code to TXT.”
+ */
+class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
+  constructor(props: {children: React.ReactNode}) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div>Something went wrong. Please refresh the page.</div>;
+    }
+    return this.props.children;
+  }
+}
+
+function App() {
+  const [files, setFiles] = React.useState<FileInfo[]>([]);
+  const [selectedFiles, setSelectedFiles] = React.useState<Record<string, boolean>>({});
+  const [logs, setLogs] = React.useState<string[]>([]);
+  const [scanning, setScanning] = React.useState(false);
+  const { replit, status } = useReplit();
+
+  /** Appends a line of text to the logs. */
+  function appendLog(msg: string) {
+    setLogs(prev => [...prev, msg]);
+  }
+
+  /**
+   * Recursively gather file paths from `dirPath`, skipping big/irrelevant folders.
+   * We do a single pass that also reads line counts for each file. 
+   */
+  async function readDirectoryRecursive(dirPath: string, collector: FileInfo[]) {
+    // If dirPath matches or ends with a skip dir, do not recurse
+    for (const skipName of SKIP_DIRS) {
+      if (dirPath === skipName || dirPath.endsWith(`/${skipName}`)) {
+        return;
+      }
+    }
+    const dirRes = await replit.fs.readDir(dirPath);
+    if (dirRes.error) {
+      appendLog(`readDir error for "${dirPath}": ${dirRes.error}`);
+      return;
+    }
+    const { children } = dirRes;
+    if (!children) return;
+
+    for (const child of children) {
+      const fullPath = dirPath === "." ? child.filename : `${dirPath}/${child.filename}`;
+      if (child.type === "DIRECTORY") {
+        await readDirectoryRecursive(fullPath, collector);
+      } else {
+        // It's a file => read once to get line count
+        const readRes = await replit.fs.readFile(fullPath, "utf8");
+        let lineCount = 0;
+        if ("error" in readRes && readRes.error) {
+          appendLog(`Failed reading lines in "${fullPath}": ${readRes.error}`);
+        } else {
+          const content = ("content" in readRes && readRes.content) ? readRes.content : "";
+          lineCount = content.split("\n").length;
+        }
+        collector.push({ path: fullPath, lineCount });
+      }
+    }
+  }
+
+  /**
+   * When user clicks “Scan Codebase.”
+   * We gather all file paths (skipping SKIP_DIRS), read line counts, and
+   * auto‐select those that pass shouldIncludeFile.
+   */
+  async function handleScan() {
+    if (!replit?.fs) return;
+    setScanning(true);
+    setFiles([]);
+    setSelectedFiles({});
+    setLogs([]);
+
+    appendLog("Scanning codebase (skips node_modules, .git, etc.)...");
+
+    try {
+      const allFiles: FileInfo[] = [];
+      await readDirectoryRecursive(".", allFiles);
+
+      appendLog(`Discovered ${allFiles.length} file(s). Now auto-selecting & sorting...`);
+
+      // Build initial selection map
+      const initSelected: Record<string, boolean> = {};
+      for (const f of allFiles) {
+        initSelected[f.path] = shouldIncludeFile(f.path);
+      }
+
+      // Sort: selected first, then alpha by path
+      allFiles.sort((a, b) => {
+        const selA = initSelected[a.path] ? 1 : 0;
+        const selB = initSelected[b.path] ? 1 : 0;
+        if (selA !== selB) {
+          return selB - selA; // selected goes on top
+        }
+        return a.path.localeCompare(b.path);
+      });
+
+      setFiles(allFiles);
+      setSelectedFiles(initSelected);
+
+      appendLog("Scan complete. All line counts are loaded.");
+    } catch (err) {
+      appendLog(`Error scanning codebase: ${String(err)}`);
+    } finally {
+      setScanning(false);
+    }
+  }
+
+  /** Toggles selection of one file. */
+  function handleCheckbox(path: string) {
+    setSelectedFiles(prev => ({
+      ...prev,
+      [path]: !prev[path]
+    }));
+  }
+
+  /**
+   * “Generate File” => read content for selected files, produce a single .txt.
+   * We already have line counts, but we re‐read the actual contents here to
+   * produce the final text.
+   */
+  async function handleGenerate() {
+    try {
+      const now = new Date().toISOString().replace(/[^\dT]/g, "").split(".")[0];
+      const outFileName = `code-to-text-${now}.txt`;
+
+      let combined = "";
+      for (const f of files) {
+        if (selectedFiles[f.path]) {
+          const readRes = await replit.fs.readFile(f.path, "utf8");
+          if ("error" in readRes && readRes.error) {
+            replit.messages.showError(`Could not read "${f.path}": ${readRes.error}`);
+            continue;
+          }
+          const content = ("content" in readRes && readRes.content) ? readRes.content : "";
+          combined += `File: ${f.path}\n`;
+          combined += "----------------------------------------\n";
+          combined += content + "\n\n\n";
+        }
+      }
+
+      const writeRes = await replit.fs.writeFile(outFileName, combined);
+      if ("error" in writeRes && writeRes.error) {
+        throw new Error(writeRes.error);
+      }
+      replit.messages.showNotice(`Created: ${outFileName}`, 5000);
+    } catch (err) {
+      replit.messages.showError(`Failed generating file: ${String(err)}`);
+    }
+  }
+
+  // If extension handshake not ready
+  if (status === "loading") {
+    return <div style={styles.loading}>Connecting to Replit...</div>;
+  }
+  if (status === "error") {
+    return <div style={styles.loading}>Error initializing extension.</div>;
+  }
+
+  return (
+    <div style={styles.container}>
+      <h1 style={styles.title}>Code to TXT</h1>
+      <p>
+        Scan your codebase, identify key files and generate a TXT file, ready to share with an external LLM
+      </p>
+
+      <button style={styles.scanBtn} onClick={handleScan} disabled={scanning}>
+        {scanning ? "Scanning..." : "Scan Codebase"}
+      </button>
+
+      {files.length > 0 ? (
+        <>
+          <p style={styles.note}>
+            Recommended files pre-selected. Uncheck anything you don’t want included.
+          </p>
+          <div style={styles.tableContainer}>
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  <th style={styles.headerCell}>Lines</th>
+                  <th style={styles.headerCell}>Select</th>
+                  <th style={styles.headerCell}>File Path</th>
+                </tr>
+              </thead>
+              <tbody>
+                {files.map(f => (
+                  <tr key={f.path}>
+                    <td style={styles.lineCell}>{f.lineCount}</td>
+                    <td style={styles.checkCell}>
+                      <input
+                        type="checkbox"
+                        checked={!!selectedFiles[f.path]}
+                        onChange={() => handleCheckbox(f.path)}
+                      />
+                    </td>
+                    <td style={styles.filePathCell}>{f.path}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <button style={styles.generateBtn} onClick={handleGenerate}>
+            Generate a TXT File
+          </button>
+        </>
+      ) : (
+        <p style={{ margin: "1rem 0" }}>
+          {scanning ? "Scanning in progress..." : "No files found yet."}
+        </p>
+      )}
+
+      <h3 style={{ marginTop: "1rem" }}>Logs</h3>
+      <div style={styles.logsBox}>
+        {logs.map((line, i) => (
+          <div key={i} style={styles.logLine}>
+            {line}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Standard React entry point
+const root = createRoot(document.getElementById("root") as HTMLElement);
+root.render(
+  <ErrorBoundary>
+    <HandshakeProvider>
+      <App />
+    </HandshakeProvider>
+  </ErrorBoundary>
+);
+
+// Inline styling
+const styles: Record<string, React.CSSProperties> = {
+  container: {
+    fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+    padding: "2rem",
+    maxWidth: "900px",
+    margin: "0 auto",
+    backgroundColor: "#ffffff",
+    color: "#1a1a1a"
+  },
+  title: {
+    fontSize: "2rem",
+    marginBottom: "1rem",
+    fontWeight: "700",
+    background: "linear-gradient(45deg, #2563eb, #3b82f6)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent"
+  },
+  loading: {
+    padding: "2rem",
+    fontSize: "1.1rem",
+    color: "#666"
+  },
+  scanBtn: {
+    padding: "0.75rem 1.5rem",
+    marginRight: "1rem",
+    cursor: "pointer",
+    backgroundColor: "#2563eb",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "1rem",
+    fontWeight: "500",
+    transition: "transform 0.1s, background-color 0.2s",
+    ":hover": {
+      backgroundColor: "#1d4ed8",
+      transform: "scale(1.02)"
+    }
+  },
+  note: {
+    margin: "1rem 0",
+    fontSize: "0.95rem",
+    color: "#666",
+    lineHeight: "1.5"
+  },
+  tableContainer: {
+    marginTop: "1.5rem",
+    border: "1px solid #e5e7eb",
+    borderRadius: "12px",
+    maxHeight: "50vh",
+    overflowY: "auto",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+  },
+  table: {
+    width: "100%",
+    borderCollapse: "separate",
+    borderSpacing: 0
+  },
+  headerCell: {
+    backgroundColor: "#f8fafc",
+    fontWeight: "600",
+    color: "#475569",
+    padding: "12px",
+    position: "sticky",
+    top: 0,
+    borderBottom: "1px solid #e5e7eb",
+    textAlign: "left"
+  },
+  lineCell: {
+    borderBottom: "1px solid #f1f5f9",
+    padding: "10px 12px",
+    textAlign: "right",
+    width: "4rem",
+    color: "#64748b"
+  },
+  checkCell: {
+    borderBottom: "1px solid #f1f5f9",
+    padding: "10px 12px",
+    textAlign: "center",
+    width: "3rem"
+  },
+  filePathCell: {
+    borderBottom: "1px solid #f1f5f9",
+    padding: "10px 12px",
+    fontFamily: "'Fira Code', monospace",
+    fontSize: "0.9rem",
+    color: "#334155"
+  },
+  generateBtn: {
+    marginTop: "1.5rem",
+    padding: "0.75rem 2rem",
+    cursor: "pointer",
+    backgroundColor: "#16a34a",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "1rem",
+    fontWeight: "500",
+    transition: "transform 0.1s, background-color 0.2s",
+    ":hover": {
+      backgroundColor: "#15803d",
+      transform: "scale(1.02)"
+    }
+  },
+  logsBox: {
+    marginTop: "1rem",
+    border: "1px solid #e5e7eb",
+    borderRadius: "12px",
+    backgroundColor: "#f8fafc",
+    padding: "1rem",
+    maxHeight: "160px",
+    overflowY: "auto",
+    boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.05)"
+  },
+  logLine: {
+    fontFamily: "'Fira Code', monospace",
+    fontSize: "0.9rem",
+    marginBottom: "0.4rem",
+    color: "#475569",
+    lineHeight: "1.4"
+  }
+};
+
+
+File: src/rules.ts
+========================================
+// src/rules.ts
+
+// By default, we auto-select these file extensions.
+const AUTO_SELECT_EXTS = [
+  ".js", ".jsx", ".ts", ".tsx", ".py", ".json", ".html", ".css"
+];
+
+/**
+ * Returns true if path is a string and ends with one of the “code” extensions
+ * we want to auto-select by default.
+ */
+export function shouldIncludeFile(path: unknown): boolean {
+  if (typeof path !== "string") return false;
+  for (const ext of AUTO_SELECT_EXTS) {
+    if (path.endsWith(ext)) return true;
+  }
+  return false;
+}
+
+
+File: src/tool/index.html
+========================================
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Code Extractor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./main.tsx"></script>
+  </body>
+</html>
+
+
+File: vite.config.ts
+========================================
+
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    host: true,
+    port: 8080,
+    strictPort: true,
+    hmr: {
+      clientPort: 443,
+      host: '0.0.0.0',
+    },
+    watch: {
+      usePolling: true,
+    },
+    cors: {
+      origin: '*',
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true
+    }
+  }
+})
+
+
+File: extension.json
+========================================
+
+{
+  "name": "Code to TXT",
+  "slug": "code-to-txt",
+  "version": "0.0.1",
+  "description": "Create a TXT file will all your code for an LLM",
+  "icon": "minimalistic-colour-icon-code-being-writ_KVoTtCDJQ060WeB12MCSfw_LNcCs1aeQgy3DfD0J9h8NA.jpeg",
+  "scopes": [
+    {
+      "name": "read",
+      "reason": "Read your code files so they can be included in the final text file."
+    },
+    {
+      "name": "write-exec",
+      "reason": "Create timestamped text files in your workspace."
+    }
+  ],
+  "tools": [
+    {
+      "handler": "/",
+      "name": "Code to TXT",
+      icon: "/public/icon.svg"
+    }
+  ],
+  "longDescription": "Make it easy to code with LLMs, pull all your files together into a single TXT file and give it to your LLM"
+}

@@ -31,7 +31,7 @@ start = "typescript-language-server --stdio"
 
 [extension]
 isExtension = true
-buildCommand = "replkit build"
+buildCommand = "vite build"
 outputDirectory = "./dist"
 staticDirectory = "./public"
 extensionID = "d61ff118-ae23-4234-93a5-1f43008b828a"
