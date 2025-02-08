@@ -45,7 +45,7 @@ localPort = 8080
 externalPort = 80
 
 [workflows]
-runButton = "dev"
+runButton = "Run"
 
 [[workflows.workflow]]
 name = "Run"
@@ -53,7 +53,7 @@ author = 17743746
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx replkit dev"
+args = "npm run dev"
 
 [[workflows.workflow]]
 name = "dev"

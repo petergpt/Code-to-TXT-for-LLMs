@@ -4,17 +4,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev": "vite",
     "build": "vite build"
   },
   "dependencies": {
     "@replit/extensions": "latest",
     "@replit/extensions-react": "latest",
     "@replit/replkit": "^0.0.7",
+    "@vitejs/plugin-react": "^4.3.4",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
-    "vite": "^4.0.4"
+    "vite": "^4.5.9"
   }
 }
