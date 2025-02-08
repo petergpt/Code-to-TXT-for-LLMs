@@ -2,7 +2,7 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
 import { HandshakeProvider, useReplit } from "@replit/extensions-react";
-import { shouldIncludeFile } from "../rules";
+import { shouldIncludeFile } from "../rules.ts";
 
 function App() {
   const { replit, status } = useReplit();
