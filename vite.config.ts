@@ -5,14 +5,21 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: '0.0.0.0',
+    host: true,
     port: 8080,
+    strictPort: true,
     hmr: {
+      clientPort: 443,
       host: '0.0.0.0',
     },
-    cors: true,
-    headers: {
-      'Access-Control-Allow-Origin': '*'
+    watch: {
+      usePolling: true,
+    },
+    cors: {
+      origin: '*',
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true
     }
   }
 })
