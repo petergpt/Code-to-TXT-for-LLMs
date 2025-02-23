@@ -19,7 +19,7 @@
     {
       "handler": "/index.html",
       "name": "Code to TXT",
-      "icon": "/replit.svg"
+      "icon": "/icon.svg"
     }
   ],
   "longDescription": "Make it easy to code with LLMs, pull all your files together into a single TXT file and give it to your LLM"
