@@ -32,13 +32,6 @@ Code to TXT is a Replit extension that helps developers gather their code files 
 - Maximum file size: ~2MB (in base64 form)
 - Automatically skips binary files (images, PDFs, etc.)
 
-## Development
-The extension is built using:
-- React 18
-- TypeScript
-- Vite
-- @replit/extensions API
-
 ## License
 MIT License
 
